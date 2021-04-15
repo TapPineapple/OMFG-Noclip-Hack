@@ -37,7 +37,7 @@ DWORD WINAPI HackThread(HMODULE hModule)
     uintptr_t jmpbackaddy = moduleBase + 0x1F92A53 + 0xE;
     memcpy(gateway, "\x66\x9c\x53\x48\xBB", 5);
     memcpy(gateway + 5, (void*)&posAddy, 8);
-    memcpy(gateway + 5 + 8, "\x48\x81\xEB\xD0\x01\x00\x00\x48\x39\xDF\x0F\x84\x08\x00\x00\x00\x44\x0F\x11\xA7\xD0\x01\x00\x00\x66\x9D\x5B\xB2\x01\x44\x0F\x11\xBF\xE0\x01\x00\x00\xFF\x25\x00\x00\x00\x00", 43); //make sure to pop rbx later! \x5B
+    memcpy(gateway + 5 + 8, "\x48\x81\xEB\xD0\x01\x00\x00\x48\x39\xDF\x0F\x84\x08\x00\x00\x00\x44\x0F\x11\xA7\xD0\x01\x00\x00\x5B\x66\x9D\xB2\x01\x44\x0F\x11\xBF\xE0\x01\x00\x00\xFF\x25\x00\x00\x00\x00", 43); //make sure to pop rbx later! \x5B
     memcpy(gateway + 5 + 8 + 43, (void*)&jmpbackaddy, 8); //xFF\x25 jmp code
   
     //prints out the addy to the gateway (for debugging reasons)
@@ -50,16 +50,18 @@ DWORD WINAPI HackThread(HMODULE hModule)
 
         if (GetAsyncKeyState(0x56) & 1) //V
         {
-            posAddy = mem::FindDMAAddy(moduleBase + 0x03FE72B0, { 0x118, 0xA0, 0x150, 0x1D0 });
-            x = (float*)(posAddy);
-            y = (float*)(posAddy + 0x4);
-            z = (float*)(posAddy + 0x8);
-            pitch = (float*)(posAddy - 0xA4);
-            memcpy(gateway + 5, (void*)&posAddy, 8);
+            
 
             noclip = !noclip;
             if (noclip)
             {
+                posAddy = mem::FindDMAAddy(moduleBase + 0x03FE72B0, { 0x118, 0xA0, 0x150, 0x1D0 });
+                x = (float*)(posAddy);
+                y = (float*)(posAddy + 0x4);
+                z = (float*)(posAddy + 0x8);
+                pitch = (float*)(posAddy - 0xA4);
+                memcpy(gateway + 5, (void*)&posAddy, 8);
+
                 jmptoaddy = (moduleBase + 0x1F92A53) - (uintptr_t)gateway;
                 //enable detour
                 DWORD oldprotect;
